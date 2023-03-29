@@ -1,0 +1,349 @@
+openapi: 3.0.0
+info:
+  title: Auth API
+  description: API for accounts, roles
+  version: '1.0'
+servers:
+  - url: /v1
+tags:
+  - name: Account
+    description: API for user's authorization
+  - name: CRUD Roles
+    description: API for CRUD roles
+  - name: Managing User's roles
+    description: API for managing user's roles
+components:
+  schemas:
+    ProviderNames:
+      type: string
+      enum:
+        - yandex
+        - google
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+    LoginHistory:
+      type: object
+      properties:
+        user_agent:
+          type: string
+        auth_date:
+          type: string
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+    BaseAuth:
+      type: http
+      scheme: basic
+security:
+  - Bearer: []
+paths:
+  /authorize/{provider}:
+    get:
+      summary: войти через соцсети
+      tags:
+        - Account
+      description: Вход пользователя в систему через соцсети
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Role or login is empty
+        '400':
+          description: Login already existed
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          description: "The provider of the OAuth service."
+          schema:
+            $ref: '#/components/schemas/ProviderNames'
+  /login:
+    post:
+      tags:
+        - Account
+      description: User authentication
+      responses:
+        '200':
+          description: OK (successfully authenticated)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          description: Could not verify
+      security:
+        - BaseAuth: []
+  /delete_user:
+    post:
+      tags:
+        - Account
+      description: Delete user
+      responses:
+        '200':
+          description: User successfully delete
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /change_login:
+    post:
+      tags:
+        - Account
+      description: Changing user login
+      parameters:
+        - in: query
+          name: new_login
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Login was successfully changed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: Login already existed
+  /change_password:
+    post:
+      tags:
+        - Account
+      description: Changing a user's password
+      parameters:
+        - in: query
+          name: new_password
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Password was successfully changed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: Could not change password
+  /login_history:
+    get:
+      tags:
+        - Account
+      description: Login history of current user
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          required: true
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          required: true
+      responses:
+        '200':
+          description: User's login history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginHistory'
+  /logout:
+    delete:
+      tags:
+        - Account
+      description: User Logout
+      responses:
+        '200':
+          description: revoke access/refresh token
+  /refresh:
+    get:
+      tags:
+        - Account
+      description: Updating authorization tokens
+      responses:
+        '200':
+          description: new pair of access and refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          description: Could not verify token
+  /sign_up:
+    post:
+      tags:
+        - Account
+      description: User registration
+      parameters:
+        - in: query
+          name: login
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: password
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: User's sing up. Get access and refresh JWT-tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Login already existed
+        '401':
+          description: Login and password required
+  /create_role:
+    post:
+      tags:
+        - CRUD Roles
+      description: Creating a new role
+      parameters:
+        - in: query
+          name: new_role
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: New role was created
+        '401':
+          description: New role is empty
+        '500':
+          description: Role already existed in database
+  /delete_role:
+    delete:
+      tags:
+        - CRUD Roles
+      description: Deleting an existing role
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Role was deleted
+        '409':
+          description: Role doesnt exist in database
+  /change_role:
+    put:
+      tags:
+        - CRUD Roles
+      description: Changing Role
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: new_name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Role was renamed
+        '409':
+          description: Role doesnt exist in database
+  /roles_list:
+    get:
+      tags:
+        - CRUD Roles
+      description: Getting a list of possible roles
+      responses:
+        '200':
+          description: List of roles
+        '401':
+          description: Could not verify
+  /assign_role:
+    post:
+      tags:
+        - Managing User's roles
+      description: Assigning a role to a user
+      parameters:
+        - in: query
+          name: login
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Role was assigned to user
+        '401':
+          description: Role or login is empty
+        '500':
+          description: Could not assign role to user
+  /detach_role:
+    delete:
+      tags:
+        - Managing User's roles
+      description: Deleting a user role
+      parameters:
+        - in: query
+          name: login
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: role
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Role was assigned to user
+        '401':
+          description: Role or login is empty
+        '500':
+          description: Could not assign role to user
+  /user_roles:
+    get:
+      tags:
+        - Managing User's roles
+      description: Getting user roles
+      parameters:
+        - in: query
+          name: login
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: List of user's roles
+        '401':
+          description: Could not verify
