@@ -1,0 +1,26 @@
+from django.contrib import admin
+from movies.models import Room, RoomUser
+
+
+@admin.register(Room)
+class RoomAdmin(admin.ModelAdmin):
+    list_display = (
+        "owner_uuid",
+        "film_work_uuid",
+        "film_work_state",
+    )
+    list_filter = (
+        "owner_uuid",
+        "film_work_state",
+    )
+
+
+@admin.register(RoomUser)
+class RoomUserAdmin(admin.ModelAdmin):
+    list_display = (
+        "user_uuid",
+        "user_type",
+        "room_uuid",
+    )
+
+    list_filter = ("user_type",)

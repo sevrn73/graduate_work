@@ -1,5 +1,20 @@
 version: "3.7"
 services:
+  nginx:
+    image: nginx:1.23.2
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+      - static_volume:/opt/app/static
+      - media_volume:/opt/app/media
+    depends_on:
+      - service
+      - cinema_api
+      - auth_api
+    ports:
+      - "80:80"
+
   redis:
     image: redis:7.0.6-alpine
     restart: always
@@ -7,21 +22,18 @@ services:
 
   db:
     container_name: graduate_work_db
-    image: postgres:12.0-alpine
+    image: postgres:14-alpine
     restart: always
-    ports:
-      - 5432:5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_volume:/var/lib/postgresql/data
     env_file:
       - .env
 
-  app:
+  cinema_api:
+    container_name: cinema_api
     build:
-      context: ./app/src
+      context: ./cinema_api/src
     command: gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080
-    ports:
-      - 8080:8080
     depends_on:
       - db
       - redis
@@ -29,16 +41,55 @@ services:
       - .env
 
   websocket:
-      build:
-        context: ./app/src
-      command: gunicorn websocket:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8081
-      ports:
-        - 8081:8081
-      depends_on:
-        - db
-        - redis
-      env_file:
+    container_name: cinema_websocket
+    build:
+      context: ./cinema_api/src
+    command: gunicorn websocket:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8081
+    ports:
+      - 8081:8081
+    depends_on:
+      - db
+      - redis
+    env_file:
+    - .env
+
+  auth_db:
+    container_name: auth_db
+    image: postgres:14-alpine
+    restart: always
+    volumes:
+      - auth_postgres_volume:/var/lib/postgresql/data
+    env_file:
+      - ./auth_api/.env
+    environment:
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+
+  auth_api:
+    build: auth_api
+    image: auth_api
+    restart: always
+    env_file:
+      - ./auth_api/.env
+    depends_on:
+      - auth_db
+      - redis
+
+  service:
+    build: service
+    image: django:4.0.4
+    restart: always
+    volumes:
+      - static_volume:/opt/app/static
+      - media_volume:/opt/app/media
+    env_file:
       - .env
+    depends_on:
+      - db
 
 volumes:
-  postgres_data:
+  postgres_volume:
+  auth_postgres_volume:
+  static_volume:
+  media_volume:
+
