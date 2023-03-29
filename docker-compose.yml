@@ -1,0 +1,44 @@
+version: "3.7"
+services:
+  redis:
+    image: redis:7.0.6-alpine
+    restart: always
+    command: redis-server
+
+  db:
+    container_name: graduate_work_db
+    image: postgres:12.0-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  app:
+    build:
+      context: ./app/src
+    command: gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+  websocket:
+      build:
+        context: ./app/src
+      command: gunicorn websocket:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8081
+      ports:
+        - 8081:8081
+      depends_on:
+        - db
+        - redis
+      env_file:
+      - .env
+
+volumes:
+  postgres_data:
