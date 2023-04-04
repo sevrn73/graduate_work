@@ -13,4 +13,6 @@ COPY . .
 
 EXPOSE 8001
 
-ENTRYPOINT [ "./docker-entrypoint.sh" ]
+RUN chmod +x /opt/auth_api/docker-entrypoint.sh
+
+ENTRYPOINT [ "/opt/auth_api/docker-entrypoint.sh" ]

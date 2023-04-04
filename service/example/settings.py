@@ -7,6 +7,9 @@ from split_settings.tools import include
 load_dotenv()
 
 
+VERIFY_JWT_URL = os.environ.get("VERIFY_JWT_URL", "http://nginx:80/v1/check_perm")
+REFRESH_JWT_URL = os.environ.get("REFRESH_JWT_URL", "http://nginx:80/v1/refresh")
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
@@ -33,6 +36,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "movies.middleware.ProcessRequestMiddleware",
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -50,7 +54,9 @@ ROOT_URLCONF = "example.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            os.path.join(BASE_DIR, "movies", "templates", "movies"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
