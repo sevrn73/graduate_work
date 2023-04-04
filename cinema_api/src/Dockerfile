@@ -1,6 +1,6 @@
 FROM python:3.9-alpine
 
-WORKDIR /opt/app
+WORKDIR /opt/cinema_api
 
 COPY requirements.txt requirements.txt
 RUN  pip install --upgrade pip && \
