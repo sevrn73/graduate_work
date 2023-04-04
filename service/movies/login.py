@@ -3,9 +3,6 @@ from django.contrib.auth.models import User
 from django.shortcuts import HttpResponseRedirect
 from django.views.generic import View
 from movies.models.user import Profile
-from ninja import NinjaAPI
-
-login = NinjaAPI(urls_namespace="login")
 
 
 class Login(View):
@@ -14,7 +11,6 @@ class Login(View):
 
     """
 
-    @login.post("/login")
     def login(request, username: str, password: str):
         user = auth.authenticate(username=username, password=password)
         if user:
@@ -34,7 +30,6 @@ class Registration(View):
 
     """
 
-    @login.post("/registr")
     def registr(request, username: str, password: str, team: str):
         if User.objects.filter(username=username).exists():
             return {"err": "Пользователь уже зарегистрирован"}

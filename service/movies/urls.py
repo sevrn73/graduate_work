@@ -6,5 +6,5 @@ from movies.views import index
 urlpatterns = [
     path('', index),
     path("logout", Login.logout),
-    path("login/", login.urls),
+    # path("login/", login.urls),
 ]
