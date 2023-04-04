@@ -1,7 +1,6 @@
 import subprocess
 import time
 
-import requests
 from django.core.management import BaseCommand
 from django.db import connections
 from django.db.utils import OperationalError

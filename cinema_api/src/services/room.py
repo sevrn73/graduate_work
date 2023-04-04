@@ -2,7 +2,7 @@ import logging
 from functools import lru_cache
 from typing import List, Optional
 from uuid import UUID
-
+import datetime
 from aioredis import Redis
 from connection_events.postgres import get_pg_engine
 from connection_events.redis import get_redis_client
@@ -35,7 +35,7 @@ class RoomService(BaseService):
                     session.add(
                         Room(
                             owner_uuid=user_id,
-                            room_users=[RoomUser(user_uuid=user_id, user_type=RoomUserTypeEnum.owner.value)],
+                            room_users=[RoomUser(user_uuid=user_id, user_type=RoomUserTypeEnum.owner.value, created_at=datetime.now())],
                         )
                     )
             except IntegrityError as exc:
