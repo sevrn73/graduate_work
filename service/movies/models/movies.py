@@ -52,4 +52,4 @@ class RoomUser(UUIDMixin, TimeStampedMixin):
         verbose_name_plural = _("RoomUsers")
 
     def __str__(self):
-        return self.user_uuid
+        return f"{self.user_uuid}"
