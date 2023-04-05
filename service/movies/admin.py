@@ -20,7 +20,7 @@ class RoomUserAdmin(admin.ModelAdmin):
     list_display = (
         "user_uuid",
         "user_type",
-        "room_uuid",
+        "room",
     )
 
     list_filter = ("user_type",)

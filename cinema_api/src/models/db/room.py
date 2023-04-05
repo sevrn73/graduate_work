@@ -1,7 +1,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -22,9 +22,6 @@ class Room(Base):
 
     room_users = relationship("RoomUser")
 
-    # required in order to access columns with server defaults
-    # or SQL expression defaults, subsequent to a flush, without
-    # triggering an expired load
     __mapper_args__ = {"eager_defaults": True}
 
 
