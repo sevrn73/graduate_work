@@ -1,6 +1,6 @@
 @startuml
 !theme cerulean
-title "Архитектура (As Is)"
+title "Архитектура (To Be)"
 actor Пользователь as Client
 
 
@@ -46,5 +46,6 @@ AdminPanelProxy --> DjangoApp
 DjangoApp --> AuthService: "Проверка\n токена"
 
 Admin --> AdminPanelProxy: "Администрирование\n комнат"
-Client --> MoviesServiceProxy
+Client --> MoviesServiceProxy: "Совместный просмотр фильмов"
+MoviesServiceProxy --> DjangoApp
 @enduml
