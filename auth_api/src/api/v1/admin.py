@@ -2,9 +2,11 @@ import click
 from flask.cli import with_appcontext
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+from werkzeug.security import generate_password_hash
+
 from src.db.db import SQLALCHEMY_DATABASE_URI
 from src.db.db_models import Roles, User, UsersRoles
-from werkzeug.security import generate_password_hash
+
 
 
 @click.command(name="create_admin_role")

@@ -1,4 +1,5 @@
 from flask import Blueprint
+
 from src.api.v1.account import (
     change_login,
     change_password,
@@ -12,6 +13,7 @@ from src.api.v1.account import (
 )
 from src.api.v1.managing import assign_role, detach_role, user_roles
 from src.api.v1.roles import change_role, create_role, delete_role, roles_list
+
 
 app_v1_blueprint = Blueprint("v1", __name__)
 app_v1_blueprint.add_url_rule("/check_perm", methods=["GET"], view_func=check_perm)

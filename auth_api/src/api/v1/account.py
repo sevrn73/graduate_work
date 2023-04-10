@@ -9,6 +9,8 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
+from werkzeug.security import check_password_hash
+
 from src.cache.redis_cache import redis_cache
 from src.core.config import redis_settings
 from src.db.account_service import (
@@ -21,7 +23,6 @@ from src.db.account_service import (
     get_user_by_identity,
     get_user_by_login,
 )
-from werkzeug.security import check_password_hash
 
 
 def get_unauthorized_response():

@@ -6,14 +6,15 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_swagger_ui import get_swaggerui_blueprint
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
 from src.api.v1.admin import create_admin_role
 from src.api.v1.api_v1_blueprint import app_v1_blueprint
-from src.api.v1.oauth import oauth
 from src.cache.redis_cache import redis_cache
-from src.core.config import jaeger_settings, oauthservices_settings, project_settings, redis_settings
+from src.core.config import jaeger_settings, project_settings, redis_settings
 from src.core.tracer import configure_tracer
 from src.db.db import init_db
 from src.db.roles_service import get_user_primary_role
+
 
 SWAGGER_URL = "/auth_api/docs/"
 API_URL = "/auth_api/static/swagger_config.yaml"
@@ -27,18 +28,6 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = project_settings.SECRET_KEY
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(seconds=redis_settings.ACCESS_EXPIRES_IN_SECONDS)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(seconds=redis_settings.REFRESH_EXPIRES_IN_SECONDS)
-    app.config["OAUTH_CREDENTIALS"] = {
-        "yandex": {
-            "id": oauthservices_settings.YANDEX.ID,
-            "secret": oauthservices_settings.YANDEX.SECRET,
-            "redirect_uri": oauthservices_settings.YANDEX.REDIRECT_URI,
-        },
-        "google": {
-            "id": oauthservices_settings.GOOGLE.ID,
-            "secret": oauthservices_settings.GOOGLE.SECRET,
-            "redirect_uri": oauthservices_settings.GOOGLE.REDIRECT_URI,
-        },
-    }
     app.config["RATELIMIT_STORAGE_URL"] = redis_settings.RATELIMIT_STORAGE_URL
     limiter.init_app(app)
 
@@ -59,7 +48,6 @@ def create_app():
 
     app.register_blueprint(swagger_blueprint)
     app.register_blueprint(app_v1_blueprint, url_prefix="/v1")
-    app.register_blueprint(oauth, url_prefix="/v1")
     app.cli.add_command(create_admin_role)
 
     @app.route("/auth_api/static/<path:path>")

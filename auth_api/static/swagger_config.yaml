@@ -43,30 +43,6 @@ components:
 security:
   - Bearer: []
 paths:
-  /authorize/{provider}:
-    get:
-      summary: войти через соцсети
-      tags:
-        - Account
-      description: Вход пользователя в систему через соцсети
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Token'
-        '401':
-          description: Role or login is empty
-        '400':
-          description: Login already existed
-      parameters:
-        - name: provider
-          in: path
-          required: true
-          description: "The provider of the OAuth service."
-          schema:
-            $ref: '#/components/schemas/ProviderNames'
   /login:
     post:
       tags:

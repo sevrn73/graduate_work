@@ -47,20 +47,6 @@ class LoginHistory(db.Model):
     auth_date = db.Column(db.DateTime, nullable=False, primary_key=True, default=datetime.datetime.now())
 
 
-class OAuthAccount(db.Model):
-    __tablename__ = "oauth_account"
-
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
-    user = db.relationship(User, backref=db.backref("oauth_account", lazy=True))
-    social_id = db.Column(db.String(30), nullable=False)
-    service_id = db.Column(db.Text, nullable=False)
-    service_name = db.Column(db.Text, nullable=False)
-
-    def __repr__(self):
-        return f"<OAuthAccount {self.service_name}:{self.user_id}>"
-
-
 class Roles(db.Model):
     __tablename__ = "roles"
 
