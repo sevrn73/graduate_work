@@ -185,16 +185,16 @@ paths:
           schema:
             type: string
           required: true
-        # - in: query
-        #   name: first_name
-        #   schema:
-        #     type: string
-        #   required: true
-        # - in: query
-        #   name: second_name
-        #   schema:
-        #     type: string
-        #   required: true
+        - in: query
+          name: first_name
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: last_name
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: User's sing up. Get access and refresh JWT-tokens

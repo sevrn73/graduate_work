@@ -24,7 +24,7 @@ def add_friend():
         return make_response("User already in friends list", HTTPStatus.BAD_REQUEST)
 
     return jsonify(
-        msg=f"Friend {friend_user.login} was add to user {friend_user.current_user} friends list"
+        msg=f"Friend {current_user.login} was add to user {friend_user.login} friends list"
     )
 
 
