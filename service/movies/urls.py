@@ -1,10 +1,10 @@
 # yapf: disable
 from django.urls import path
-from movies.login import Login, Registration
-from movies.views import index
+from movies.views import index, login, logout, register
 
 urlpatterns = [
-    path('', index),
-    path("logout", Login.logout),
-    # path("login/", login.urls),
+    path('', index, name="index"),
+    path("logout", logout, name="logout"),
+    path("login", login, name="login"),
+    path("register", register, name="register"),
 ]

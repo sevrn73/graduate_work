@@ -54,7 +54,7 @@ services:
       - db
       - redis
     env_file:
-    - .env
+      - .env
 
   auth_db:
     container_name: auth_db
@@ -96,3 +96,7 @@ volumes:
   static_volume:
   media_volume:
 
+networks:
+  ws:
+    name: ws
+    driver: bridge

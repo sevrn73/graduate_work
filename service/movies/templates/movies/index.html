@@ -11,6 +11,22 @@
 </head>
 
 <body>
+    {{ room_id|json_script:"room_id" }}
+    <script>
+        const room_id = JSON.parse(document.getElementById("room_id").textContent);
+        console.log(room_id)
+        async function create_socket() {
+            teamSocket = new WebSocket(
+                "ws://" + window.location.host + "/ws/" + `${room_id}`
+            );
+            teamSocket.onmessage = socket_onmessage;
+        }
+        async function socket_onmessage(e) {
+            const data = JSON.parse(e.data);
+            console.log(data);
+        }
+        create_socket();
+    </script>
 </body>
 
 </html>
