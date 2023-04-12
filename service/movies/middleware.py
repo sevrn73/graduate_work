@@ -1,42 +1,43 @@
 from http import HTTPStatus
 
-import httpx
+import requests
 from django.contrib import auth
 from django.shortcuts import HttpResponseRedirect
 from django.utils.deprecation import MiddlewareMixin
-from example.settings import REFRESH_JWT_URL, VERIFY_JWT_URL
+from example.settings import LOGOUT_JWT_URL, REFRESH_JWT_URL, VERIFY_JWT_URL
 
 
 class ProcessRequestMiddleware(MiddlewareMixin):
     def process_view(self, request, view_func, *view_args, **view_kwargs):
         path = request.path_info.lstrip("/")
-        for endpoint in ["admin/", "login", "logout", "register"]:
-            if path.startswith(endpoint):
-                return
-
-        # user = request.user
-        # if user.is_authenticated:
-        #     with httpx.AsyncClient() as client:
-        #         response = client.get(
-        #             VERIFY_JWT_URL, headers={"Authorization": "Bearer " + user.profile.external_access_token}
-        #         )
-        #     if response.status_code == HTTPStatus.OK:
-        #         return
-        #     else:
-        #         # пробуем получить новый access token
-        #         with httpx.AsyncClient() as client:
-        #             response = client.get(
-        #                 REFRESH_JWT_URL,
-        #                 headers={"Authorization": "Bearer " + user.profile.external_refresh_token},
-        #             )
-        #         if response.status_code == HTTPStatus.OK:
-        #             user.profile.external_access_token = response["access_token"]
-        #             user.profile.external_refresh_token = response["refresh_token"]
-        #             user.profile.save()
-        #             return
-        #         else:
-        #             auth.logout(request)
-        #             auth.logout(request)
-        #             return HttpResponseRedirect("/login")
-        # else:
-        #     return HttpResponseRedirect("/login")
+        if not any([path.startswith(_) for _ in ["admin/", "login", "logout", "register"]]):
+            user = request.user
+            if user.is_authenticated:
+                response = requests.get(
+                    VERIFY_JWT_URL,
+                    headers={"Authorization": "Bearer " + request.user.profile.external_access_token},
+                )
+                if response.status_code == HTTPStatus.OK:
+                    return
+                else:
+                    # пробуем получить новый access token
+                    response = requests.get(
+                        REFRESH_JWT_URL,
+                        headers={"Authorization": "Bearer " + request.user.profile.external_refresh_token},
+                    )
+                    if response.status_code == HTTPStatus.OK:
+                        data = response.json()
+                        user.profile.external_access_token = data["access_token"]
+                        user.profile.external_refresh_token = data["refresh_token"]
+                        user.profile.save()
+                        return
+                    else:
+                        requests.delete(
+                            LOGOUT_JWT_URL,
+                            headers={"Authorization": "Bearer " + request.user.profile.external_access_token},
+                        )
+                        auth.logout(request)
+                        auth.logout(request)
+                        return HttpResponseRedirect("/login")
+            else:
+                return HttpResponseRedirect("/login")

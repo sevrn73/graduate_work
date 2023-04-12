@@ -8,7 +8,10 @@ load_dotenv()
 
 
 VERIFY_JWT_URL = os.environ.get("VERIFY_JWT_URL", "http://nginx:80/v1/check_perm")
+LOGIN_JWT_URL = os.environ.get("LOGIN_JWT_URL", "http://nginx:80/v1/login")
 REFRESH_JWT_URL = os.environ.get("REFRESH_JWT_URL", "http://nginx:80/v1/refresh")
+SIGNUP_JWT_URL = os.environ.get("SIGNUP_JWT_URL", "http://nginx:80/v1/sign_up")
+LOGOUT_JWT_URL = os.environ.get("LOGOUT_JWT_URL", "http://nginx:80/v1/logout")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
