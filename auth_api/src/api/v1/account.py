@@ -9,6 +9,8 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
+from werkzeug.security import check_password_hash
+
 from src.cache.redis_cache import redis_cache
 from src.core.config import redis_settings
 from src.db.account_service import (
@@ -21,7 +23,6 @@ from src.db.account_service import (
     get_user_by_identity,
     get_user_by_login,
 )
-from werkzeug.security import check_password_hash
 
 
 def get_unauthorized_response():
@@ -148,6 +149,8 @@ def refresh():
 def sign_up():
     login = request.values.get("login", None)
     password = request.values.get("password", None)
+    first_name = request.values.get("first_name", None)
+    last_name = request.values.get("last_name", None)
     if not login or not password:
         return make_response(
             "Login and password required",
@@ -159,9 +162,10 @@ def sign_up():
     if user_model:
         return make_response("Login already existed", HTTPStatus.BAD_REQUEST)
 
-    new_user = create_user(login, password)
+    new_user = create_user(login, password, first_name, last_name)
 
-    access_token = create_access_token(identity=new_user.id, fresh=True)
+    additional_claims = {"first_name": first_name, "last_name": last_name}
+    access_token = create_access_token(identity=new_user.id, additional_claims=additional_claims, fresh=True)
     refresh_token = create_refresh_token(identity=new_user.id)
     user_agent = request.headers["user_agent"]
 
