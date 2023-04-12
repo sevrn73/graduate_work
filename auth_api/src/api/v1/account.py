@@ -9,6 +9,8 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
 )
+from werkzeug.security import check_password_hash
+
 from src.cache.redis_cache import redis_cache
 from src.core.config import redis_settings
 from src.db.account_service import (
@@ -21,7 +23,6 @@ from src.db.account_service import (
     get_user_by_identity,
     get_user_by_login,
 )
-from werkzeug.security import check_password_hash
 
 
 def get_unauthorized_response():
@@ -50,8 +51,10 @@ def login():
 
         add_record_to_login_history(user_model.id, user_agent)
 
-        access_token = create_access_token(identity=user_model.id, fresh=True)
-        refresh_token = create_refresh_token(identity=user_model.id)
+        additional_claims = {"first_name": user_model.first_name, "last_name": user_model.last_name}
+
+        access_token = create_access_token(identity=user_model.id, additional_claims=additional_claims, fresh=True)
+        refresh_token = create_refresh_token(identity=user_model.id, additional_claims=additional_claims,)
 
         refresh_key = ":".join(("refresh", user_agent, str(user_model.id)))
         redis_cache._put_token(refresh_key, get_jti(refresh_token), redis_settings.REFRESH_EXPIRES_IN_SECONDS)
@@ -131,9 +134,11 @@ def refresh():
     key = ":".join(("refresh", user_agent, identity))
     cache_token_jti = redis_cache._get(key)
 
+    additional_claims = {"first_name": token["first_name"], "last_name": token["last_name"]}
+
     if jti == cache_token_jti:
-        access_token = create_access_token(identity=identity, fresh=True)
-        refresh_token = create_refresh_token(identity=identity)
+        access_token = create_access_token(identity=identity, additional_claims=additional_claims, fresh=True)
+        refresh_token = create_refresh_token(identity=identity, additional_claims=additional_claims,)
 
         refresh_key = ":".join(("refresh", user_agent, identity))
         redis_cache._put_token(refresh_key, get_jti(refresh_token), redis_settings.REFRESH_EXPIRES_IN_SECONDS)
@@ -164,8 +169,9 @@ def sign_up():
     new_user = create_user(login, password, first_name, last_name)
 
     additional_claims = {"first_name": first_name, "last_name": last_name}
+
     access_token = create_access_token(identity=new_user.id, additional_claims=additional_claims, fresh=True)
-    refresh_token = create_refresh_token(identity=new_user.id)
+    refresh_token = create_refresh_token(identity=new_user.id, additional_claims=additional_claims)
     user_agent = request.headers["user_agent"]
 
     add_record_to_login_history(new_user.id, user_agent)
