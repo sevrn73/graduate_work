@@ -28,6 +28,14 @@ class RoomService(BaseService):
             existed_room = room.mappings().fetchone()
             return RoomModel(**existed_room) if existed_room else None
 
+    async def update_user_room_time(self, room_id: str, actual_time:float):
+        async with self.db_connection.begin() as conn:
+            await conn.execute(
+                update(Room)
+                .where(and_(Room.id == room_id))
+                .values(film_work_time=actual_time)
+            )
+
     async def create_user_room(self, user_id: str):
         async with self.get_session() as session:
             try:
