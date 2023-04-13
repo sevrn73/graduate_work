@@ -9,15 +9,7 @@ from example.settings import LOGIN_JWT_URL, LOGOUT_JWT_URL, SIGNUP_JWT_URL
 
 
 def index(request):
-    context = {}
-    response = requests.get(
-        "http://nginx:80/cinema_v1/room/",
-        headers={"Authorization": "Bearer " + request.user.profile.external_access_token},
-    )
-    if response.status_code == HTTPStatus.OK:
-        data = response.json()
-        context["room_id"] = data["id"]
-    return render(request, "index.html", context)
+    return render(request, "index.html", {"room_id": request.user.profile.chosen_room_id})
 
 
 def basic_auth(username, password):

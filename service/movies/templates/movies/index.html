@@ -11,23 +11,39 @@
 </head>
 
 <body>
-    {{ room_id|json_script:"room_id" }} {{ request.user.profile.external_access_token|json_script:"external_access_token" }}
+    <button onclick="send_message('Hellow room!')"> Поздороваться</button> {{ room_id|json_script:"room_id" }} {{ request.user.profile.external_access_token|json_script:"external_access_token" }}
     <script>
         const room_id = JSON.parse(document.getElementById("room_id").textContent);
         const external_access_token = JSON.parse(document.getElementById("external_access_token").textContent);
         document.cookie = 'Authorization= Bearer ' + external_access_token + '; path=/';
         console.log(room_id, external_access_token)
-        async function create_socket() {
-            teamSocket = new WebSocket(
-                "ws://" + window.location.host + "/ws/" + `${room_id}`
-            );
-            teamSocket.onmessage = socket_onmessage;
-        }
+
+        var Socket = new WebSocket(
+            "ws://" + window.location.host + "/ws/" + `${room_id}`
+        );
         async function socket_onmessage(e) {
             const data = JSON.parse(e.data);
             console.log(data);
         }
-        create_socket();
+        Socket.onmessage = socket_onmessage;
+
+        // ws.onopen = function () {
+        //     ws.send("Hi, from the client."); // this works
+        //     alert("Connection opened...");
+        // };
+
+        // ws.onmessage = function (event) {
+        //         alert("Message received..." + event.data);
+        // };
+
+        // ws.onclose = function () {
+        //     alert("Connection closed...");
+        // };
+
+
+        async function send_message(mes) {
+            Socket.send(mes);
+        }
     </script>
 </body>
 

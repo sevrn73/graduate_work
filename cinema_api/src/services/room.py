@@ -71,13 +71,10 @@ class RoomService(BaseService):
 
             try:
                 await conn.execute(
-                    insert(
-                        RoomUser,
-                        {
-                            RoomUser.room_uuid.key: room_id,
-                            RoomUser.user_uuid.key: user.pk,
-                            RoomUser.user_type: RoomUserTypeEnum.pending.value,
-                        },
+                    insert(RoomUser).values(
+                        room_uuid=room_id,
+                        user_uuid=user.pk,
+                        user_type=RoomUserTypeEnum.pending.value,
                     )
                 )
             except IntegrityError as exc:

@@ -8,6 +8,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     external_access_token = models.CharField("external_access_token", default="", max_length=1500)
     external_refresh_token = models.CharField("external_refresh_token", default="", max_length=1500)
+    chosen_room_id = models.UUIDField(default=None, null=True)
 
     def __str__(self) -> str:
         return self.user.username
