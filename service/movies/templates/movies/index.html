@@ -11,10 +11,12 @@
 </head>
 
 <body>
-    {{ room_id|json_script:"room_id" }}
+    {{ room_id|json_script:"room_id" }} {{ request.user.profile.external_access_token|json_script:"external_access_token" }}
     <script>
         const room_id = JSON.parse(document.getElementById("room_id").textContent);
-        console.log(room_id)
+        const external_access_token = JSON.parse(document.getElementById("external_access_token").textContent);
+        document.cookie = 'Authorization= Bearer ' + external_access_token + '; path=/';
+        console.log(room_id, external_access_token)
         async function create_socket() {
             teamSocket = new WebSocket(
                 "ws://" + window.location.host + "/ws/" + `${room_id}`

@@ -9,7 +9,7 @@ logging_config.dictConfig(LOGGING)
 
 
 class ProjectSettings(BaseSettings):
-    SECRET_KEY:str = Field("key", env="SECRET_KEY")
+    SECRET_KEY: str = Field("key", env="SECRET_KEY")
 
 
 class DbSettings(BaseSettings):
@@ -29,13 +29,6 @@ class RedisSettings(BaseSettings):
     RATELIMIT_STORAGE_URL: str = Field("redis://redis:6379", env="RATELIMIT_STORAGE_URL")
 
 
-class JaegerSettings(BaseSettings):
-    JAEGER_HOST: str = Field("jaeger", env="JAEGER_HOST")
-    JAEGER_PORT: int = Field(6831, env="JAEGER_PORT")
-    ENABLE_TRACER: bool = Field(True, env="ENABLE_TRACER")
-
-
 project_settings = ProjectSettings()
 db_settings = DbSettings()
 redis_settings = RedisSettings()
-jaeger_settings = JaegerSettings()

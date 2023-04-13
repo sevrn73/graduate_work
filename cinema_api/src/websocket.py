@@ -1,6 +1,10 @@
 import asyncio
+import logging
 from functools import lru_cache
+from http import HTTPStatus
 
+import httpx
+import jwt
 import uvicorn
 from aioredis import Redis
 from connection_events.events import on_shutdown, on_startup
@@ -11,10 +15,47 @@ from core.config import settings
 from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
 from services.ws import WebsocketService
 from sqlalchemy.ext.asyncio import AsyncEngine
+from starlette.authentication import AuthCredentials, AuthenticationBackend, SimpleUser
+from starlette.middleware import Middleware
+from starlette.middleware.authentication import AuthenticationMiddleware
+
+logger = logging.getLogger(__name__)
+
+
+class ExtendedSimpleUser(SimpleUser):
+    def __init__(self, username: str, first_name: str, last_name: str) -> None:
+        super().__init__(username)
+        self.pk = username
+        self.first_name = first_name
+        self.last_name = last_name
+
+
+class BasicAuthBackend(AuthenticationBackend):
+    async def authenticate(self, conn):
+        if "Authorization" not in conn.cookies:
+            return
+        auth = conn.cookies["Authorization"]
+        scheme, credentials = auth.split()
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                settings.VERIFY_JWT_URL,
+                headers={"Authorization": "Bearer " + credentials},
+            )
+        if response.status_code == HTTPStatus.OK:
+            jwt_decoded = jwt.decode(credentials, algorithms="HS256", options={"verify_signature": False})
+            return AuthCredentials(["authenticated"]), ExtendedSimpleUser(
+                username=jwt_decoded["sub"],
+                first_name=jwt_decoded["first_name"],
+                last_name=jwt_decoded["last_name"],
+            )
+
+
+middleware = [Middleware(AuthenticationMiddleware, backend=BasicAuthBackend())]
 
 app = FastAPI(
     on_startup=on_startup,
     on_shutdown=on_shutdown,
+    middleware=middleware,
 )
 
 
