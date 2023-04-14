@@ -33,6 +33,17 @@ async def create_room(
         return ResponseModel(success=False, errors=[error])
     return ResponseModel(success=True)
 
+@room_router.post("/{room_id}/delete", response_model=ResponseModel)
+async def delete_room(
+    room_id: UUID,
+    user: CustomUser = Depends(JWTBearer()),
+    service: RoomService = Depends(get_room_service),
+) -> ResponseModel:
+    status = await service.delete_room(user=user, room_id=room_id)
+    if status:
+        return ResponseModel(success=False, errors=[status])
+    return ResponseModel(success=True)
+
 
 @room_router.get("/{room_id}/users/", response_model=List[RoomUserModel])
 async def get_room_users(

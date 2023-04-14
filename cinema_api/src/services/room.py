@@ -12,13 +12,14 @@ from fastapi.encoders import jsonable_encoder
 from models.db.room import Room, RoomUser
 from models.room import RoomModel, RoomUserMessage, RoomUserMessageTypeEnum, RoomUserModel, RoomUserTypeEnum
 from services.base import BaseService
-from sqlalchemy import and_, exists, insert, select, update
+from sqlalchemy import and_, exists, insert, select, update, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 __all__ = ("get_room_service", "RoomService")
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class RoomService(BaseService):
@@ -49,6 +50,17 @@ class RoomService(BaseService):
             except IntegrityError as exc:
                 logger.error(exc)
                 return f'Room for user "{user_id}" already exist!'
+
+    async def delete_room(self, room_id: UUID, user: CustomUser):
+        async with self.db_connection.begin() as conn:
+            room = await conn.execute(
+                select(Room).where(and_(Room.id == str(room_id),Room.owner_uuid == str(user.pk))
+            ))
+
+            if room.first() is not None:
+                await conn.execute(delete(RoomUser).where((RoomUser.room_uuid == str(room_id))))
+                await conn.execute(delete(Room).where(and_(Room.id == str(room_id),Room.owner_uuid == str(user.pk))))
+            return f'Room "{room_id}" does not exist!'
 
     async def get_room(self, room_id: UUID, user: CustomUser) -> Optional[RoomModel]:
         async with self.db_connection.begin() as conn:
