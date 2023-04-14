@@ -28,6 +28,9 @@ services:
       - postgres_volume:/var/lib/postgresql/data
     env_file:
       - .env
+    environment:
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
 
   cinema_api:
     container_name: cinema_api
@@ -51,7 +54,7 @@ services:
       - db
       - redis
     env_file:
-    - .env
+      - .env
 
   auth_db:
     container_name: auth_db
@@ -93,3 +96,7 @@ volumes:
   static_volume:
   media_volume:
 
+networks:
+  ws:
+    name: ws
+    driver: bridge

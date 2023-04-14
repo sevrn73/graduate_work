@@ -43,30 +43,6 @@ components:
 security:
   - Bearer: []
 paths:
-  /authorize/{provider}:
-    get:
-      summary: войти через соцсети
-      tags:
-        - Account
-      description: Вход пользователя в систему через соцсети
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Token'
-        '401':
-          description: Role or login is empty
-        '400':
-          description: Login already existed
-      parameters:
-        - name: provider
-          in: path
-          required: true
-          description: "The provider of the OAuth service."
-          schema:
-            $ref: '#/components/schemas/ProviderNames'
   /login:
     post:
       tags:
@@ -209,6 +185,16 @@ paths:
           schema:
             type: string
           required: true
+        - in: query
+          name: first_name
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: last_name
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: User's sing up. Get access and refresh JWT-tokens
@@ -345,5 +331,57 @@ paths:
       responses:
         '200':
           description: List of user's roles
+        '401':
+          description: Could not verify
+  /add_friend:
+    post:
+      tags:
+        - Managing User's friends list
+      description: Add friend to user
+      parameters:
+        - in: query
+          name: friend_id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Friend add to friends list
+        '400':
+          description: User already in friends list
+        '401':
+          description: Could not verify
+  /delete_friend:
+    delete:
+      tags:
+        - Managing User's friends list
+      description: Delete friend to user
+      parameters:
+        - in: query
+          name: friend_id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Friend delete from friends list
+        '400':
+          description: User not in friends list
+        '401':
+          description: Could not verify
+  /friends_list:
+    get:
+      tags:
+        - Managing User's friends list
+      description: Delete user
+      responses:
+        '200':
+          description: List of friends
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
         '401':
           description: Could not verify

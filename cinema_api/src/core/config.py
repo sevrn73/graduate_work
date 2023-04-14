@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     DB_HOST: str = Field("graduate_work_db", env="DB_HOST")
     DB_PORT: int = Field(5432, env="DB_PORT")
     POSTGRES_USER: str = Field("postgres", env="POSTGRES_USER")
-    POSTGRES_PASSWORD: str = Field(1234, env="POSTGRES_PASSWORD")
-    POSTGRES_NAME: str = Field("graduate_work", env="POSTGRES_NAME")
+    POSTGRES_PASSWORD: str = Field("postgres", env="POSTGRES_PASSWORD")
+    POSTGRES_NAME: str = Field("postgres", env="POSTGRES_NAME")
 
     REDIS_HOST: str = Field("redis", env="REDIS_HOST")
     REDIS_PORT: int = Field(6379, env="REDIS_PORT")

@@ -1,5 +1,51 @@
 @startuml
 !theme cerulean
 title "Архитектура (To Be)"
+actor Пользователь as Client
 
+
+package Nginx {
+ component AdminPanelProxy 
+ component MoviesServiceProxy
+}
+note top of Nginx
+Веб-сервер для проксирования запросов
+end note
+
+package MoviesService {
+ component DjangoApp
+ database cinema_together_db
+}
+note top of MoviesService
+Сервис для администрирования комнат + фронт для пользователей
+end note
+
+package CinemaService {
+ component cinema_api
+ component websocket
+}
+note top of CinemaService
+Api для работы с комнатой совместного просмотра фильма
+end note
+CinemaService <--> DjangoApp
+
+package AuthService {
+ component Flask
+ database AuthDB
+ database AuthRedis
+}
+note top of AuthService
+Сервис регистрации,
+ авторизации и аутентификации
+end note
+Flask --> AuthDB: "CRUD операции\n с данными о пользователях"
+Flask --> AuthRedis: "Кэширование и проверка\n действительности токенов"
+
+
+AdminPanelProxy --> DjangoApp
+DjangoApp --> AuthService: "Проверка\n токена"
+
+Admin --> AdminPanelProxy: "Администрирование\n комнат"
+Client --> MoviesServiceProxy: "Совместный просмотр фильмов"
+MoviesServiceProxy --> DjangoApp
 @enduml

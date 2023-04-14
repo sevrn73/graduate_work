@@ -1,9 +1,10 @@
 from typing import Dict, List
 
 from fastapi.encoders import jsonable_encoder
+from starlette.websockets import WebSocket
+
 from models.room import RoomUserMessage, RoomUserMessageTypeEnum
 from services.room import RoomService
-from starlette.websockets import WebSocket
 
 
 class WebsocketService(RoomService):

@@ -20,9 +20,9 @@ class UUIDMixin(models.Model):
 
 class Room(UUIDMixin, TimeStampedMixin):
     owner_uuid = models.UUIDField(default=uuid.uuid4, null=False, unique=True)
-    film_work_uuid = models.UUIDField(default=uuid.uuid4)
-    film_work_time = models.FloatField(_("name"))
-    film_work_state = models.CharField(_("name"), max_length=255)
+    film_work_uuid = models.UUIDField(default=uuid.uuid4, null=True)
+    film_work_time = models.FloatField(_("name"), null=True)
+    film_work_state = models.CharField(_("name"), max_length=255, null=True)
 
     class Meta:
         db_table = "cinema_together_room"
@@ -44,7 +44,7 @@ class RoomUser(UUIDMixin, TimeStampedMixin):
     user_type = models.CharField(
         _("user_type"), choices=RoomUserType.choices, default=RoomUserType.pending, max_length=8
     )
-    room_uuid = models.ForeignKey("Room", on_delete=models.CASCADE)
+    room = models.ForeignKey("Room", db_column="room_uuid", null=True, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "cinema_together_room_user"
@@ -52,4 +52,4 @@ class RoomUser(UUIDMixin, TimeStampedMixin):
         verbose_name_plural = _("RoomUsers")
 
     def __str__(self):
-        return self.user_uuid
+        return f"{self.user_uuid}"

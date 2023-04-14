@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация</title>
+    <link rel="stylesheet" href="/static/movies/css/main.css" type="text/css" />
+</head>
+
+<body>
+    <main>
+        <div class="row">
+            <div class="colm-form">
+                <div class="form-container">
+                    <form method="post">
+                        <p> {{ err }}</p>
+                        {% csrf_token %}
+                        <input type="text" placeholder="Username" name="username">
+                        <input type="password" placeholder="Password" name="password">
+                        <button class="btn-login" type="submit">Login</button>
+                    </form>
+                    <a class="btn-new" href="{{ 'register' }}">Create new Account</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
