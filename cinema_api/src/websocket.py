@@ -81,19 +81,12 @@ async def send_to_stream(room_id: str, websocket: WebSocket, service: WebsocketS
         await service.stream_message(room_id=room_id, message=message, websocket=websocket)
 
 
-async def read_video_from_stream(
-    room_id: str, service: WebsocketService, websocket: WebSocket, user: CustomUser, actual_time: float
-):
+async def stream_video_message(room_id: str, websocket: WebSocket, service: WebsocketService):
     while True:
-        await service.update_user_room_time(room_id=room_id, actual_time=actual_time)
+        actual_time = await websocket.receive_text()
 
-
-async def stream_video_message(
-    room_id: str, websocket: WebSocket, service: WebsocketService, user: CustomUser, actual_time: float
-):
-    while True:
-        msg = jsonable_encoder({"actual_time": actual_time})
-        await websocket.send_json(msg)
+        await service.stream_message(room_id=f"{room_id}_roll", message=actual_time, websocket=websocket)
+        await service.update_user_room_time(room_id=room_id, actual_time=float(actual_time))
 
 
 @app.websocket("/ws/{room_id}/chat")
@@ -118,17 +111,11 @@ async def websocket_endpoint(
 async def websocket_endpoint_roll(
     websocket: WebSocket,
     room_id: str,
-    actual_time: float,
-    # user: CustomUser = Depends(JWTBearer()),
     service: WebsocketService = Depends(get_ws_service),
 ):
     await service.connect(websocket)
-    read = asyncio.create_task(
-        read_video_from_stream(service=service, websocket=websocket, room_id=room_id, actual_time=actual_time)
-    )
-    write = asyncio.create_task(
-        stream_video_message(service=service, websocket=websocket, room_id=room_id, actual_time=actual_time)
-    )
+    read = asyncio.create_task(read_from_stream(service=service, websocket=websocket, room_id=f"{room_id}_roll"))
+    write = asyncio.create_task(stream_video_message(service=service, websocket=websocket, room_id=room_id))
 
     try:
         await asyncio.gather(read, write)

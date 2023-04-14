@@ -57,11 +57,40 @@
     <script>
         const room_id = JSON.parse(document.getElementById("room_id").textContent);
         const external_access_token = JSON.parse(document.getElementById("external_access_token").textContent);
+        var owner_id;
+        async function get_owner_id() {
+            var response = await fetch(`http://localhost:80/cinema_v1/room/${room_id}/users/`, {
+                method: 'get',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + external_access_token
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+            var room_users = await response.json();
+            for (let user_data of Object.values(room_users)) {
+                console.log(user_data)
+                if (user_data['user_type'] === 'owner') {
+                    owner_id = user_data['user_uuid'];
+                }
+            }
+
+        }
+        get_owner_id();
+
+
         document.cookie = 'Authorization= Bearer ' + external_access_token + '; path=/';
         console.log(room_id, external_access_token)
 
-        var Socket = new WebSocket(
-            "ws://" + window.location.host + "/ws/" + `${room_id}`
+        var ChatSocket = new WebSocket(
+            "ws://" + window.location.host + "/ws/" + `${room_id}/chat`
+        );
+
+        var VideoSocket = new WebSocket(
+            "ws://" + window.location.host + "/ws/" + `${room_id}/roll`
         );
 
         function parseJwt(token) {
@@ -73,7 +102,7 @@
 
             return JSON.parse(jsonPayload);
         }
-        async function socket_onmessage(e) {
+        async function ChatSocket_onmessage(e) {
             const data = JSON.parse(e.data);
             console.log(data);
 
@@ -91,7 +120,7 @@
             }
         }
         async function send_message(mes) {
-            Socket.send(mes);
+            ChatSocket.send(mes);
             document.getElementById('mes').value = '';
 
             var today = new Date();
@@ -104,9 +133,22 @@
                 </div>
             `;
         }
-        Socket.onmessage = socket_onmessage;
+        ChatSocket.onmessage = ChatSocket_onmessage;
 
 
+
+
+        async function VideoSocket_onmessage(e) {
+            const data = JSON.parse(e.data);
+            console.log('reciev')
+            console.log(data);
+            if (data['user_id'] != parseJwt(external_access_token)['sub']) {
+                if (Math.abs(parseFloat(data['text']) - player.getCurrentTime()) > 1) {
+                    player.seekTo(parseFloat(data['text']));
+                }
+            }
+        }
+        VideoSocket.onmessage = VideoSocket_onmessage;
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -125,15 +167,22 @@
             });
         }
 
+        var CurrentTime;
+
         function onPlayerReady(event) {
             event.target.playVideo();
-            setInterval(function() {
-                console.log(player.getCurrentTime())
-            }, 1000)
+            console.log(owner_id, parseJwt(external_access_token)['sub'])
+            if (owner_id == parseJwt(external_access_token)['sub']) {
+                setInterval(function() {
+                    if (CurrentTime != player.getCurrentTime()) {
+                        console.log('send')
+                        CurrentTime = player.getCurrentTime();
+                        console.log(CurrentTime)
+                        VideoSocket.send(CurrentTime);
+                    }
+                }, 1000)
+            }
         }
-
-
-        // player.seekTo(80);
 
 
         // ws.onopen = function () {
