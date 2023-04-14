@@ -43,23 +43,12 @@ async def get_room_users(
     return await service.get_room_users(room_id=str(room_id))
 
 
-@room_router.patch("/{room_id}/{user_id}/", response_model=ResponseModel)
-async def update_room_user_permission(
-    room_id: UUID,
-    user_id: UUID,
-    user_type: RoomUserTypeModel,
+@room_router.get("/rooms", response_model=List[RoomModel])
+async def get_rooms(
     user: CustomUser = Depends(JWTBearer()),
     service: RoomService = Depends(get_room_service),
-) -> ResponseModel:
-    error = await service.update_room_user_permission(
-        owner_id=user.pk,
-        user_id=str(user_id),
-        room_id=str(room_id),
-        user_type=user_type.user_type.value,
-    )
-    if error:
-        return ResponseModel(success=False, errors=[error])
-    return ResponseModel(success=True)
+) -> List[RoomModel]:
+    return await service.get_rooms(user=user)
 
 
 @room_router.post("/{room_id}/join", response_model=ResponseModel)
@@ -68,7 +57,23 @@ async def join(
     user: CustomUser = Depends(JWTBearer()),
     service: RoomService = Depends(get_room_service),
 ) -> ResponseModel:
-    error = await service.join(user=user, room_id=str(room_id))
+    error = await service.join(
+        user_id=user.pk,
+        room_id=str(room_id),
+    )
+    if error:
+        return ResponseModel(success=False, errors=[error])
+    return ResponseModel(success=True)
+
+
+@room_router.post("/{room_id}/{user_id}/invite", response_model=ResponseModel)
+async def invite(
+    room_id: UUID,
+    user_id: UUID,
+    user: CustomUser = Depends(JWTBearer()),
+    service: RoomService = Depends(get_room_service),
+) -> ResponseModel:
+    error = await service.invite(user=user, room_id=str(room_id), user_id=str(user_id))
     if error:
         return ResponseModel(success=False, errors=[error])
     return ResponseModel(success=True)

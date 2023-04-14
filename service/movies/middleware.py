@@ -10,7 +10,7 @@ from example.settings import LOGOUT_JWT_URL, REFRESH_JWT_URL, VERIFY_JWT_URL
 class ProcessRequestMiddleware(MiddlewareMixin):
     def process_view(self, request, view_func, *view_args, **view_kwargs):
         path = request.path_info.lstrip("/")
-        if not any([path.startswith(_) for _ in ["admin/", "login", "logout", "register"]]):
+        if not any([path.startswith(_) for _ in ["admin/", "login", "logout", "register", "change_chosen_room_id"]]):
             user = request.user
             if user.is_authenticated:
                 response = requests.get(

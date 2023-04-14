@@ -1,5 +1,5 @@
 from django.contrib import admin
-from movies.models import Profile, Room, RoomUser
+from movies.models import Film, Profile, Room, RoomUser
 
 
 @admin.register(Room)
@@ -25,6 +25,15 @@ class RoomUserAdmin(admin.ModelAdmin):
     )
 
     list_filter = ("user_type",)
+
+
+@admin.register(Film)
+class FilmAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "film_work_name",
+        "film_work_url_id",
+    )
 
 
 admin.site.register(Profile)
