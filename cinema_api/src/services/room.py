@@ -37,7 +37,7 @@ class RoomService(BaseService):
                 .values(film_work_time=actual_time)
             )
 
-    async def create_user_room(self, user_id: str):
+    async def create_user_room(self, user_id: str, film_work_uuid:str):
         async with self.get_session() as session:
             try:
                 async with session.begin():
@@ -45,6 +45,7 @@ class RoomService(BaseService):
                         Room(
                             owner_uuid=user_id,
                             room_users=[RoomUser(user_uuid=user_id, user_type=RoomUserTypeEnum.owner.value)],
+                            film_work_uuid=film_work_uuid,
                         )
                     )
             except IntegrityError as exc:
