@@ -14,6 +14,7 @@ from src.api.v1.account import (
 from src.api.v1.friends import add_friend, delete_friend, friends_list
 from src.api.v1.managing import assign_role, detach_role, user_roles
 from src.api.v1.roles import change_role, create_role, delete_role, roles_list
+from src.api.v1.user_info import user_info
 
 
 app_v1_blueprint = Blueprint("v1", __name__)
@@ -39,3 +40,5 @@ app_v1_blueprint.add_url_rule("/detach_role", methods=["DELETE"], view_func=deta
 app_v1_blueprint.add_url_rule("/add_friend", methods=["POST"], view_func=add_friend)
 app_v1_blueprint.add_url_rule("/delete_friend", methods=["DELETE"], view_func=delete_friend)
 app_v1_blueprint.add_url_rule("/friends_list", methods=["GET"], view_func=friends_list)
+
+app_v1_blueprint.add_url_rule("/user_info", methods=["GET"], view_func=user_info)

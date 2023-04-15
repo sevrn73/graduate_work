@@ -25,12 +25,24 @@ async def get_owner_room(
 
 @room_router.post("/", response_model=ResponseModel)
 async def create_room(
+    film_work_uuid: str,
     user: CustomUser = Depends(JWTBearer()),
     service: RoomService = Depends(get_room_service),
 ) -> ResponseModel:
-    error = await service.create_user_room(user_id=user.pk)
+    error = await service.create_user_room(user_id=user.pk, film_work_uuid=film_work_uuid)
     if error:
         return ResponseModel(success=False, errors=[error])
+    return ResponseModel(success=True)
+
+@room_router.post("/{room_id}/delete", response_model=ResponseModel)
+async def delete_room(
+    room_id: UUID,
+    user: CustomUser = Depends(JWTBearer()),
+    service: RoomService = Depends(get_room_service),
+) -> ResponseModel:
+    status = await service.delete_room(user=user, room_id=room_id)
+    if status:
+        return ResponseModel(success=False, errors=[status])
     return ResponseModel(success=True)
 
 
