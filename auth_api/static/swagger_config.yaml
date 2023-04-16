@@ -30,6 +30,13 @@ components:
           type: string
         friends_list:
           type: array
+    UsersInfo:
+      type: object
+      properties:
+        users:
+          type: object
+        friends:
+          type: array
     Token:
       type: object
       properties:
@@ -402,19 +409,13 @@ paths:
       tags:
         - User's info
       description: Add friend to user
-      parameters:
-        - in: query
-          name: user_id
-          schema:
-            type: string
-          required: true
       responses:
         '200':
           description: There is info
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInfo'
+                $ref: '#/components/schemas/UsersInfo'
         '400':
           description: User already in friends list
         '401':

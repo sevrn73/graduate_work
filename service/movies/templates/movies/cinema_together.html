@@ -52,34 +52,12 @@
             </div>
         </div>
     </div>
-    {{ room_id|json_script:"room_id" }} {{ request.user.profile.external_access_token|json_script:"external_access_token" }}
+    {{ room_id|json_script:"room_id" }} {{ request.user.profile.external_access_token|json_script:"external_access_token" }} {{ owner_id|json_script:"owner_id" }} {{ film_work_url|json_script:"film_work_url" }}
     <script>
         const room_id = JSON.parse(document.getElementById("room_id").textContent);
         const external_access_token = JSON.parse(document.getElementById("external_access_token").textContent);
-        var owner_id;
-        async function get_owner_id() {
-            var response = await fetch(`http://localhost:80/cinema_v1/room/${room_id}/users/`, {
-                method: 'get',
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + external_access_token
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error: ${response.status}`);
-            }
-            var room_users = await response.json();
-            for (let user_data of Object.values(room_users)) {
-                console.log(user_data)
-                if (user_data['user_type'] === 'owner') {
-                    owner_id = user_data['user_uuid'];
-                }
-            }
-
-        }
-        get_owner_id();
-
+        const owner_id = JSON.parse(document.getElementById("owner_id").textContent);
+        const film_work_url = JSON.parse(document.getElementById("film_work_url").textContent);
 
         document.cookie = 'Authorization= Bearer ' + external_access_token + '; path=/';
         console.log(room_id, external_access_token)
@@ -103,16 +81,14 @@
         }
         async function ChatSocket_onmessage(e) {
             const data = JSON.parse(e.data);
-            console.log(data);
-
-            console.log(parseJwt(external_access_token))
+            console.log(data)
             if (data['user_id'] != parseJwt(external_access_token)['sub']) {
                 var today = new Date();
                 document.getElementById('chat_div').innerHTML += `
                     <div class="media media-chat">
                         <div class="media-body">
-                            <p>${data['text']}</p>
-                            <p class="meta" style='color: #48b0f7;'>${today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()}</p>
+                            <p>${data['first_name']} ${data['last_name']}: ${data['text']}</p>
+                            <p class="meta">${today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()}</p>
                         </div>
                     </div>
                 `;
@@ -126,8 +102,8 @@
             document.getElementById('chat_div').innerHTML += `
                 <div class="media media-chat media-chat-reverse">
                     <div class="media-body">
-                        <p>${mes}</p>
-                        <p class="meta">${today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()}</p>
+                        <p>${parseJwt(external_access_token)['first_name']} ${parseJwt(external_access_token)['last_name']}: ${mes}</p>
+                        <p class="meta" style='color: #48b0f7;'>${today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()}</p>
                     </div>
                 </div>
             `;
@@ -139,8 +115,6 @@
 
         async function VideoSocket_onmessage(e) {
             const data = JSON.parse(e.data);
-            console.log('reciev')
-            console.log(data);
             if (data['user_id'] != parseJwt(external_access_token)['sub']) {
                 if (Math.abs(parseFloat(data['text']) - player.getCurrentTime()) > 1) {
                     player.seekTo(parseFloat(data['text']));
@@ -159,7 +133,7 @@
             player = new YT.Player('player', {
                 height: '100%',
                 width: '100%',
-                videoId: 'Xa0Q0J5tOP0',
+                videoId: film_work_url,
                 events: {
                     'onReady': onPlayerReady,
                 }
@@ -170,13 +144,10 @@
 
         function onPlayerReady(event) {
             event.target.playVideo();
-            console.log(owner_id, parseJwt(external_access_token)['sub'])
             if (owner_id == parseJwt(external_access_token)['sub']) {
                 setInterval(function() {
                     if (CurrentTime != player.getCurrentTime()) {
-                        console.log('send')
                         CurrentTime = player.getCurrentTime();
-                        console.log(CurrentTime)
                         VideoSocket.send(CurrentTime);
                     }
                 }, 1000)

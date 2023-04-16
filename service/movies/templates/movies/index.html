@@ -19,7 +19,7 @@
         <div class="control-group" id="users_div">
             <h3>Список пользователей</h3>
         </div>
-        <div class="control-group" style="width: 400px;">
+        <div class="control-group" style="width: 400px;" id="room_select_div">
             <h3>Доступные комнаты</h3>
         </div>
     </div>
@@ -29,8 +29,12 @@
         const film_works_data = JSON.parse(document.getElementById("film_works_data").textContent);
         console.log(external_access_token, film_works_data)
 
-        create_film_select_div(film_works_data);
-        create_users_div(external_access_token);
+        create_film_select_div(external_access_token, film_works_data);
+        create_users_div(external_access_token)
+            .then((users) => {
+                console.log(users);
+                create_room_select_div(external_access_token, film_works_data, users);
+            });
     </script>
 </body>
 

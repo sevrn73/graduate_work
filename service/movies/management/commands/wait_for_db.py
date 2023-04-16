@@ -22,9 +22,6 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS("Database available!"))
 
-        p = subprocess.Popen(["python", "manage.py", "makemigrations"])
-        p.wait()
-
         p = subprocess.Popen(["python", "manage.py", "migrate"])
         p.wait()
 

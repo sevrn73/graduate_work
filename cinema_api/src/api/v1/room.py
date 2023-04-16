@@ -23,7 +23,7 @@ async def get_owner_room(
     return room
 
 
-@room_router.post("/", response_model=ResponseModel)
+@room_router.post("/{film_work_uuid}", response_model=ResponseModel)
 async def create_room(
     film_work_uuid: str,
     user: CustomUser = Depends(JWTBearer()),
@@ -32,27 +32,30 @@ async def create_room(
     error = await service.create_user_room(user_id=user.pk, film_work_uuid=film_work_uuid)
     if error:
         return ResponseModel(success=False, errors=[error])
-    return ResponseModel(success=True)
 
-@room_router.post("/{room_id}/delete", response_model=ResponseModel)
+    room = await service.get_owner_room(user=user)
+    if not room:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="User room not found!")
+    return ResponseModel(success=True, data={"room_id": room.id})
+
+
+@room_router.delete("/delete", response_model=ResponseModel)
 async def delete_room(
-    room_id: UUID,
     user: CustomUser = Depends(JWTBearer()),
     service: RoomService = Depends(get_room_service),
 ) -> ResponseModel:
-    status = await service.delete_room(user=user, room_id=room_id)
+    status = await service.delete_room(user=user)
     if status:
         return ResponseModel(success=False, errors=[status])
     return ResponseModel(success=True)
 
 
-@room_router.get("/{room_id}/users/", response_model=List[RoomUserModel])
+@room_router.get("/users", response_model=List[RoomUserModel])
 async def get_room_users(
-    room_id: UUID,
     user: CustomUser = Depends(JWTBearer()),
     service: RoomService = Depends(get_room_service),
 ) -> List[RoomUserModel]:
-    return await service.get_room_users(room_id=str(room_id))
+    return await service.get_room_users(user=user)
 
 
 @room_router.get("/rooms", response_model=List[RoomModel])
@@ -70,7 +73,7 @@ async def join(
     service: RoomService = Depends(get_room_service),
 ) -> ResponseModel:
     error = await service.join(
-        user_id=user.pk,
+        user=user,
         room_id=str(room_id),
     )
     if error:
@@ -78,14 +81,13 @@ async def join(
     return ResponseModel(success=True)
 
 
-@room_router.post("/{room_id}/{user_id}/invite", response_model=ResponseModel)
+@room_router.post("/{user_id}/invite", response_model=ResponseModel)
 async def invite(
-    room_id: UUID,
     user_id: UUID,
     user: CustomUser = Depends(JWTBearer()),
     service: RoomService = Depends(get_room_service),
 ) -> ResponseModel:
-    error = await service.invite(user=user, room_id=str(room_id), user_id=str(user_id))
+    error = await service.invite(user=user, user_id=str(user_id))
     if error:
         return ResponseModel(success=False, errors=[error])
     return ResponseModel(success=True)

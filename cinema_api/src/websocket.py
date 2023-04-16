@@ -96,7 +96,7 @@ async def websocket_endpoint(
     room_id: str,
     service: WebsocketService = Depends(get_ws_service),
 ):
-    await service.connect(websocket)
+    await service.connect(room_id=room_id, websocket=websocket)
     read = asyncio.create_task(read_from_stream(service=service, websocket=websocket, room_id=room_id))
     write = asyncio.create_task(send_to_stream(service=service, websocket=websocket, room_id=room_id))
 
@@ -113,7 +113,7 @@ async def websocket_endpoint_roll(
     room_id: str,
     service: WebsocketService = Depends(get_ws_service),
 ):
-    await service.connect(websocket)
+    await service.connect(room_id=room_id, websocket=websocket)
     read = asyncio.create_task(read_from_stream(service=service, websocket=websocket, room_id=f"{room_id}_roll"))
     write = asyncio.create_task(stream_video_message(service=service, websocket=websocket, room_id=room_id))
 

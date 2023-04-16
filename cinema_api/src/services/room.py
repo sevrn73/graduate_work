@@ -12,7 +12,7 @@ from fastapi.encoders import jsonable_encoder
 from models.db.room import Room, RoomUser
 from models.room import RoomModel, RoomUserMessage, RoomUserMessageTypeEnum, RoomUserModel, RoomUserTypeEnum
 from services.base import BaseService
-from sqlalchemy import and_, exists, insert, select, update, delete
+from sqlalchemy import and_, delete, exists, insert, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
@@ -33,7 +33,7 @@ class RoomService(BaseService):
         async with self.db_connection.begin() as conn:
             await conn.execute(update(Room).where(and_(Room.id == room_id)).values(film_work_time=actual_time))
 
-    async def create_user_room(self, user_id: str, film_work_uuid:str):
+    async def create_user_room(self, user_id: str, film_work_uuid: str):
         async with self.get_session() as session:
             try:
                 async with session.begin():
@@ -48,16 +48,16 @@ class RoomService(BaseService):
                 logger.error(exc)
                 return f'Room for user "{user_id}" already exist!'
 
-    async def delete_room(self, room_id: UUID, user: CustomUser):
+    async def delete_room(self, user: CustomUser):
         async with self.db_connection.begin() as conn:
-            room = await conn.execute(
-                select(Room).where(and_(Room.id == str(room_id),Room.owner_uuid == str(user.pk))
-            ))
+            room = await conn.execute(select(Room).where(Room.owner_uuid == str(user.pk)))
+            room_obj = room.mappings().fetchone()
 
-            if room.first() is not None:
-                await conn.execute(delete(RoomUser).where((RoomUser.room_uuid == str(room_id))))
-                await conn.execute(delete(Room).where(and_(Room.id == str(room_id),Room.owner_uuid == str(user.pk))))
-            return f'Room "{room_id}" does not exist!'
+            if room_obj:
+                await conn.execute(delete(RoomUser).where((RoomUser.room_uuid == room_obj["id"])))
+                await conn.execute(delete(Room).where(Room.id == room_obj["id"]))
+            else:
+                return f"Room does not exist!"
 
     async def get_room(self, room_id: UUID, user: CustomUser) -> Optional[RoomModel]:
         async with self.db_connection.begin() as conn:
@@ -71,25 +71,25 @@ class RoomService(BaseService):
             if not existed_room_user_type or existed_room_user_type == RoomUserTypeEnum.pending.value:
                 return None
 
-            room = await conn.execute(select(Room).where(RoomUser.room_uuid == str(room_id)))
+            room = await conn.execute(select(Room).where(Room.id == str(room_id)))
             existed_room = room.mappings().fetchone()
             return RoomModel(**existed_room) if existed_room else None
 
-    async def invite(self, user: CustomUser, room_id: str, user_id: str) -> Optional[str]:
+    async def invite(self, user: CustomUser, user_id: str) -> Optional[str]:
         async with self.db_connection.begin() as conn:
-            room = await conn.execute(select(Room.owner_uuid).where(Room.id == room_id))
-            room_owner = room.scalars().first()
+            room = await conn.execute(select(Room).where(Room.owner_uuid == user.pk))
+            room_obj = room.mappings().fetchone()
 
-            if not room_owner:
-                return f'Room "{room_id}" does not exist!'
+            if not room_obj:
+                return f"Room does not exist!"
 
-            if user.pk != room_owner:
-                return f'You are not the owner of the room "{room_id}"!'
+            if user.pk != str(room_obj["owner_uuid"]):
+                return f'You are not the owner of the room {room_obj["id"]}!'
 
             try:
                 await conn.execute(
                     insert(RoomUser).values(
-                        room_uuid=room_id,
+                        room_uuid=str(room_obj["id"]),
                         user_uuid=user_id,
                         user_type=RoomUserTypeEnum.pending.value,
                     )
@@ -100,18 +100,25 @@ class RoomService(BaseService):
 
     async def join(
         self,
+        user: CustomUser,
         room_id: str,
-        user_id: str,
     ) -> Optional[str]:
         async with self.db_connection.begin() as conn:
+            room = await conn.execute(select(Room.owner_uuid).where(Room.id == room_id))
+            room_owner = room.scalars().first()
+            if user.pk == room_owner:
+                return
             await conn.execute(
                 update(RoomUser)
-                .where(and_(RoomUser.room_uuid == room_id, RoomUser.user_uuid == user_id))
+                .where(and_(RoomUser.room_uuid == room_id, RoomUser.user_uuid == user.pk))
                 .values(user_type=RoomUserTypeEnum.member.value)
             )
 
-    async def get_room_users(self, room_id: str) -> List[RoomUserModel]:
+    async def get_room_users(self, user: CustomUser) -> List[RoomUserModel]:
         async with self.db_connection.begin() as conn:
+            room = await conn.execute(select(Room.id).where(Room.owner_uuid == user.pk))
+            room_id = room.scalars().first()
+
             results = await conn.execute(select(RoomUser).where(RoomUser.room_uuid == room_id))
             room_users = results.mappings().fetchall()
             return [RoomUserModel(**room_user) for room_user in room_users] if room_users else []

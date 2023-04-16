@@ -4,7 +4,7 @@ from http import HTTPStatus
 import requests
 from django.contrib import auth
 from django.contrib.auth.models import User
-from django.shortcuts import HttpResponseRedirect, redirect, render
+from django.shortcuts import HttpResponse, HttpResponseRedirect, render
 from example.settings import LOGIN_JWT_URL, LOGOUT_JWT_URL, SIGNUP_JWT_URL
 from movies.models.movies import Film
 
@@ -18,12 +18,24 @@ def index(request):
 
 
 def cinema_together(request):
+    room_id = request.user.profile.chosen_room_id
     response = requests.get(
-        f"http://nginx:80/cinema_v1/room/{request.user.profile.chosen_room_id}",
+        f"http://nginx:80/cinema_v1/room/{room_id}",
         headers={"Authorization": "Bearer " + request.user.profile.external_refresh_token},
     )
     if response.status_code == HTTPStatus.OK:
-        return render(request, "cinema_together.html", {"room_id": request.user.profile.chosen_room_id})
+        data = response.json()
+        return render(
+            request,
+            "cinema_together.html",
+            {
+                "room_id": room_id,
+                "owner_id": data["owner_uuid"],
+                "film_work_url": Film.objects.filter(id=data["film_work_uuid"])
+                .values("film_work_url_id")
+                .first()["film_work_url_id"],
+            },
+        )
     else:
         return HttpResponseRedirect("/")
 
@@ -31,6 +43,7 @@ def cinema_together(request):
 def change_chosen_room_id(request, chosen_room_id: str):
     request.user.profile.chosen_room_id = chosen_room_id
     request.user.profile.save()
+    return HttpResponse(status=HTTPStatus.OK)
 
 
 def basic_auth(username, password):
