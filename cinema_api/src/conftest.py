@@ -1,5 +1,4 @@
 import base64
-import os
 import sys
 from os.path import abspath
 from os.path import dirname as d

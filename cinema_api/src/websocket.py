@@ -11,11 +11,8 @@ from connection_events.events import on_shutdown, on_startup
 from connection_events.postgres import get_pg_engine
 from connection_events.redis import get_redis_client
 from core.auth.decorators import ws_room_permission
-from core.auth.middleware import JWTBearer
-from core.auth.models import CustomUser
 from core.config import settings
 from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.encoders import jsonable_encoder
 from services.ws import WebsocketService
 from sqlalchemy.ext.asyncio import AsyncEngine
 from starlette.authentication import AuthCredentials, AuthenticationBackend, SimpleUser

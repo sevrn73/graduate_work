@@ -9,7 +9,6 @@ from fastapi import HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 logger = logging.getLogger(__name__)
-# logger = logging.getLogger("uvicorn.access")
 logger.setLevel(logging.INFO)
 
 

@@ -5,7 +5,7 @@ from core.auth.middleware import JWTBearer
 from core.auth.models import CustomUser
 from fastapi import APIRouter, Depends, HTTPException
 from models.response import ResponseModel
-from models.room import RoomModel, RoomUserModel, RoomUserTypeModel
+from models.room import RoomModel, RoomUserModel
 from pydantic.validators import UUID
 from services.room import RoomService, get_room_service
 

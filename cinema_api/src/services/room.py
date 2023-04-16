@@ -8,11 +8,10 @@ from connection_events.postgres import get_pg_engine
 from connection_events.redis import get_redis_client
 from core.auth.models import CustomUser
 from fastapi import Depends
-from fastapi.encoders import jsonable_encoder
 from models.db.room import Room, RoomUser
-from models.room import RoomModel, RoomUserMessage, RoomUserMessageTypeEnum, RoomUserModel, RoomUserTypeEnum
+from models.room import RoomModel, RoomUserModel, RoomUserTypeEnum
 from services.base import BaseService
-from sqlalchemy import and_, delete, exists, insert, select, update
+from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
