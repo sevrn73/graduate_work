@@ -5,7 +5,6 @@ from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from src.db.db import db
 
-
 friendship = db.Table(
     "friendships",
     db.metadata,
@@ -18,9 +17,7 @@ friendship = db.Table(
 class User(db.Model):
     __tablename__ = "users"
 
-    id = db.Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False
-    )
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     login = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(30), unique=True, nullable=True)
@@ -78,17 +75,13 @@ class LoginHistory(db.Model):
     user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"))
     user = db.relationship(User, backref=db.backref("login_history", lazy=True))
     user_agent = db.Column(db.String(300), nullable=False)
-    auth_date = db.Column(
-        db.DateTime, nullable=False, primary_key=True, default=datetime.datetime.now()
-    )
+    auth_date = db.Column(db.DateTime, nullable=False, primary_key=True, default=datetime.datetime.now())
 
 
 class Roles(db.Model):
     __tablename__ = "roles"
 
-    id = db.Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False
-    )
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     name = db.Column(db.String(20), unique=True, nullable=False)
 
     def __repr__(self):
@@ -98,8 +91,6 @@ class Roles(db.Model):
 class UsersRoles(db.Model):
     __tablename__ = "users_roles"
 
-    id = db.Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False
-    )
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), ForeignKey(User.id))
     role_id = db.Column(UUID(as_uuid=True), ForeignKey(Roles.id))

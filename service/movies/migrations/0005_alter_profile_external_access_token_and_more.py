@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('movies', '0004_alter_roomuser_room'),
+        ("movies", "0004_alter_roomuser_room"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='profile',
-            name='external_access_token',
-            field=models.CharField(default='', max_length=1500, verbose_name='external_access_token'),
+            model_name="profile",
+            name="external_access_token",
+            field=models.CharField(default="", max_length=1500, verbose_name="external_access_token"),
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='external_refresh_token',
-            field=models.CharField(default='', max_length=1500, verbose_name='external_refresh_token'),
+            model_name="profile",
+            name="external_refresh_token",
+            field=models.CharField(default="", max_length=1500, verbose_name="external_refresh_token"),
         ),
     ]

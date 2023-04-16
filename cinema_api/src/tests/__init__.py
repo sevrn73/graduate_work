@@ -1,1 +1,0 @@
-# os.environ.get("SERVICE_URL", "http://cinema_api:8080")}/cinema_v1/room

@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from flask import jsonify, make_response, request
-
 from src.core.jwt_decorators import roles_required
 from src.db.account_service import get_user_by_login
 from src.db.managing_service import assign_role_to_user, detach_role_from_user, get_roles_by_user
