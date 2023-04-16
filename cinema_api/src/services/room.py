@@ -54,8 +54,8 @@ class RoomService(BaseService):
             room_obj = room.mappings().fetchone()
 
             if room_obj:
-                await conn.execute(delete(RoomUser).where((RoomUser.room_uuid == room_obj["id"])))
-                await conn.execute(delete(Room).where(Room.id == room_obj["id"]))
+                await conn.execute(delete(RoomUser).where(RoomUser.room_uuid == str(room_obj["id"])))
+                await conn.execute(delete(Room).where(Room.id == str(room_obj["id"])))
             else:
                 return f"Room does not exist!"
 
