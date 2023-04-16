@@ -19,6 +19,24 @@ components:
       enum:
         - yandex
         - google
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        friends_list:
+          type: array
+    UsersInfo:
+      type: object
+      properties:
+        users:
+          type: object
+        friends:
+          type: array
     Token:
       type: object
       properties:
@@ -383,5 +401,22 @@ paths:
                 type: array
                 items:
                   type: string
+        '401':
+          description: Could not verify
+
+  /user_info:
+    get:
+      tags:
+        - User's info
+      description: Add friend to user
+      responses:
+        '200':
+          description: There is info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersInfo'
+        '400':
+          description: User already in friends list
         '401':
           description: Could not verify

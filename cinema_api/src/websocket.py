@@ -11,11 +11,8 @@ from connection_events.events import on_shutdown, on_startup
 from connection_events.postgres import get_pg_engine
 from connection_events.redis import get_redis_client
 from core.auth.decorators import ws_room_permission
-from core.auth.middleware import JWTBearer
-from core.auth.models import CustomUser
 from core.config import settings
 from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.encoders import jsonable_encoder
 from services.ws import WebsocketService
 from sqlalchemy.ext.asyncio import AsyncEngine
 from starlette.authentication import AuthCredentials, AuthenticationBackend, SimpleUser
@@ -96,7 +93,7 @@ async def websocket_endpoint(
     room_id: str,
     service: WebsocketService = Depends(get_ws_service),
 ):
-    await service.connect(websocket)
+    await service.connect(room_id=room_id, websocket=websocket)
     read = asyncio.create_task(read_from_stream(service=service, websocket=websocket, room_id=room_id))
     write = asyncio.create_task(send_to_stream(service=service, websocket=websocket, room_id=room_id))
 
@@ -113,7 +110,7 @@ async def websocket_endpoint_roll(
     room_id: str,
     service: WebsocketService = Depends(get_ws_service),
 ):
-    await service.connect(websocket)
+    await service.connect(room_id=room_id, websocket=websocket)
     read = asyncio.create_task(read_from_stream(service=service, websocket=websocket, room_id=f"{room_id}_roll"))
     write = asyncio.create_task(stream_video_message(service=service, websocket=websocket, room_id=room_id))
 

@@ -17,3 +17,9 @@ def delete_friend_to_user(user: User, friend: str) -> bool:
 def get_all_friends(user: User) -> list:
     user_friends = user.friends
     return user_friends
+
+
+def get_all_users() -> list:
+    users = User.query.all()
+
+    return users

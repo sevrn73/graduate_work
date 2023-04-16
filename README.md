@@ -14,14 +14,16 @@ docker-compose up
 
 - Все миграции пройдут автоматически
 
+- Через django-admin необходимо добавить фильмы для просмотра
+
 ## Доступные сервисы
 
 - [Админ панель django](http://localhost/admin/)
 - [Cinema together API](http://localhost/api/openapi)
 - [AuthOpenAPI](http://localhost/auth_api/docs/)
 
-## Запуск тестов AuthApi
+## Запуск тестов Cinema together API
 
 ```
-docker-compose exec auth_api pytest
+локально pytest
 ```

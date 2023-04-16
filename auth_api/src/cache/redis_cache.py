@@ -1,10 +1,8 @@
 from typing import Any, Optional
 
 import redis
-
 from src.cache.base import BaseCache
 from src.core.config import redis_settings
-
 
 redis_db = redis.Redis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT, db=0)
 

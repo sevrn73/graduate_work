@@ -20,7 +20,7 @@ class Room(Base):
     film_work_time = Column(Float, nullable=True)
     film_work_state = Column(String, nullable=True)
 
-    room_users = relationship("RoomUser")
+    room_users = relationship("RoomUser", cascade="all, delete")
 
     __mapper_args__ = {"eager_defaults": True}
 

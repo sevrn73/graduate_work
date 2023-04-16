@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('movies', '0005_alter_profile_external_access_token_and_more'),
+        ("movies", "0005_alter_profile_external_access_token_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='chosen_room_id',
+            model_name="profile",
+            name="chosen_room_id",
             field=models.UUIDField(default=None, null=True),
         ),
     ]

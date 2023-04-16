@@ -53,3 +53,16 @@ class RoomUser(UUIDMixin, TimeStampedMixin):
 
     def __str__(self):
         return f"{self.user_uuid}"
+
+
+class Film(UUIDMixin, TimeStampedMixin):
+    film_work_name = models.CharField(max_length=120, default="")
+    film_work_url_id = models.CharField(max_length=120, default="")
+
+    class Meta:
+        db_table = "cinema_together_film"
+        verbose_name = _("Film")
+        verbose_name_plural = _("Films")
+
+    def __str__(self):
+        return f"{self.film_work_name}: {self.film_work_url_id}"

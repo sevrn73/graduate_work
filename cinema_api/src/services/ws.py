@@ -1,10 +1,9 @@
 from typing import Dict, List
 
 from fastapi.encoders import jsonable_encoder
-from starlette.websockets import WebSocket
-
 from models.room import RoomUserMessage, RoomUserMessageTypeEnum
 from services.room import RoomService
+from starlette.websockets import WebSocket
 
 
 class WebsocketService(RoomService):
@@ -12,15 +11,21 @@ class WebsocketService(RoomService):
         self.active_connections: List[WebSocket] = []
         super().__init__(*args, **kwargs)
 
-    async def connect(self, websocket: WebSocket) -> None:
+    async def connect(self, room_id: str, websocket: WebSocket) -> None:
         await websocket.accept()
         self.active_connections.append(websocket)
+        await self.stream_message(
+            room_id=room_id,
+            websocket=websocket,
+            message=f"{websocket.user.first_name} {websocket.user.last_name} присоединился к комнате!",
+            message_type=RoomUserMessageTypeEnum.service.value,
+        )
 
     async def disconnect(self, room_id: str, websocket: WebSocket) -> None:
         await self.stream_message(
             room_id=room_id,
             websocket=websocket,
-            message="Leave the chat!",
+            message=f"{websocket.user.first_name} {websocket.user.last_name} покинул комнату!",
             message_type=RoomUserMessageTypeEnum.service.value,
         )
         self.active_connections.remove(websocket)
