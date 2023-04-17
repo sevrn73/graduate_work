@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import List, Optional
 from uuid import UUID
 
-from aioredis import Redis
+from redis.asyncio import Redis
 from connection_events.postgres import get_pg_engine
 from connection_events.redis import get_redis_client
 from core.auth.models import CustomUser

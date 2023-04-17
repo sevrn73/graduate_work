@@ -21,8 +21,8 @@ class UUIDMixin(models.Model):
 class Room(UUIDMixin, TimeStampedMixin):
     owner_uuid = models.UUIDField(default=uuid.uuid4, null=False, unique=True)
     film_work_uuid = models.UUIDField(default=uuid.uuid4, null=True)
-    film_work_time = models.FloatField(_("name"), null=True)
-    film_work_state = models.CharField(_("name"), max_length=255, null=True)
+    film_work_time = models.FloatField(_("time"), null=True)
+    film_work_state = models.CharField(_("state"), max_length=255, null=True)
 
     class Meta:
         db_table = "cinema_together_room"

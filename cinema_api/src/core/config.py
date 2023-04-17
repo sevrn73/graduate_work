@@ -6,22 +6,22 @@ class Settings(BaseSettings):
     Настройки проекта
     """
 
-    PROJECT_NAME: str = "Cinema together API"
-    PROJECT_HOST: str = "0.0.0.0"
-    PROJECT_PORT: int = Field(8001, env="PROJECT_PORT")
-    WS_PORT: int = Field(8002, env="WS_PORT")
+    project_name: str = "Cinema together API"
+    project_host: str = "0.0.0.0"
+    project_port: int = Field(8001, env="PROJECT_PORT")
+    ws_port: int = Field(8002, env="WS_PORT")
 
-    DB_HOST: str = Field("graduate_work_db", env="DB_HOST")
-    DB_PORT: int = Field(5432, env="DB_PORT")
-    POSTGRES_USER: str = Field("postgres", env="POSTGRES_USER")
-    POSTGRES_PASSWORD: str = Field("postgres", env="POSTGRES_PASSWORD")
-    POSTGRES_NAME: str = Field("postgres", env="POSTGRES_NAME")
+    db_host: str = Field("graduate_work_db", env="DB_HOST")
+    db_port: int = Field(5432, env="DB_PORT")
+    postgres_user: str = Field("postgres", env="POSTGRES_USER")
+    postgres_password: str = Field("postgres", env="POSTGRES_PASSWORD")
+    postgres_name: str = Field("postgres", env="POSTGRES_NAME")
 
-    REDIS_HOST: str = Field("redis", env="REDIS_HOST")
-    REDIS_PORT: int = Field(6379, env="REDIS_PORT")
+    redis_host: str = Field("redis", env="REDIS_HOST")
+    redis_port: int = Field(6379, env="REDIS_PORT")
 
-    VERIFY_JWT_MODE: bool = Field(False, env="VERIFY_JWT_MODE")
-    VERIFY_JWT_URL: str = Field("http://nginx:80/v1/check_perm", env="VERIFY_JWT_URL")
+    verify_jwt_mode: bool = Field(False, env="VERIFY_JWT_MODE")
+    verify_jwt_url: str = Field("http://nginx:80/v1/check_perm", env="VERIFY_JWT_URL")
 
 
 settings = Settings()

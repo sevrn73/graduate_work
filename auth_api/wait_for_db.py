@@ -30,19 +30,17 @@ def connect_and_start(ps_connect: dict):
 
     logger.info("Database available!")
 
-    # p = subprocess.Popen(['alembic', 'revision', '-m', 'initial'])
-    # p.wait()
-
-    # p = subprocess.Popen(['alembic', 'upgrade', 'head'])
-    # p.wait()
-
-    # p = subprocess.Popen(['alembic', 'revision', '--autogenerate'])
-    # p.wait()
-
     p = subprocess.Popen(["alembic", "upgrade", "head"])
     p.wait()
 
-    p = subprocess.Popen(["python3", "-m", "flask", "create_admin_role", "admin", "1234"])
+    p = subprocess.Popen(
+        [
+            "python3",
+            "-m",
+            "flask",
+            "create_admin_role",
+        ]
+    )
     p.wait()
 
     subprocess.run(["python3", "/opt/auth_api/pywsgi.py"])

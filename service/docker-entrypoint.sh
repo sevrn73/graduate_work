@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec python manage.py collectstatic --no-input & python manage.py wait_for_db
+exec python manage.py collectstatic --no-input & python manage.py prepare_db_and_start

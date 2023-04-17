@@ -1,7 +1,6 @@
 import subprocess
 import time
 
-import requests
 from django.core.management import BaseCommand
 from django.db import connections
 from django.db.utils import OperationalError
@@ -26,7 +25,12 @@ class Command(BaseCommand):
         p.wait()
 
         p = subprocess.Popen(
-            ["python", "manage.py", "createsuperuser", "--noinput", "--username=admin", "--email=admin@email.com"]
+            [
+                "python",
+                "manage.py",
+                "createsuperuser",
+                "--noinput",
+            ]
         )
         p.wait()
 

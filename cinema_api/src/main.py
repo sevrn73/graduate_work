@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
+    title=settings.project_name,
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
@@ -20,6 +20,6 @@ app.include_router(api_router)
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host=settings.PROJECT_HOST,
-        port=settings.PROJECT_PORT,
+        host=settings.project_host,
+        port=settings.project_port,
     )

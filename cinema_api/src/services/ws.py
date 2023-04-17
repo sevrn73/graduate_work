@@ -31,16 +31,14 @@ class WebsocketService(RoomService):
         self.active_connections.remove(websocket)
 
     async def read_from_stream(self, room_id: str, websocket: WebSocket) -> None:
-        with await self.redis as conn:
-            messages = await conn.xread([room_id])
-            for message in messages:
-                payload = {k.decode(): v.decode() for k, v in message[2].items()}
-                msg = jsonable_encoder(RoomUserMessage(**payload).dict())
-                await websocket.send_json(msg)
+        resp = await self.redis.xread({room_id: "$"}, None, 0)
+        _, messages = resp[0]
+        for message in messages:
+            msg = jsonable_encoder(message[1])
+            await websocket.send_json(msg)
 
     async def _send_msg(self, room_id: str, message: Dict):
-        with await self.redis as conn:
-            await conn.xadd(room_id, fields=message)
+        await self.redis.xadd(room_id, fields=message)
 
     async def stream_message(
         self,
