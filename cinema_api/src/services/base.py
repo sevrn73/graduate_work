@@ -1,6 +1,5 @@
-from aioredis import Redis
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 __all__ = ("BaseService",)
 
@@ -11,4 +10,4 @@ class BaseService:
         self.redis = redis
 
     def get_session(self) -> AsyncSession:
-        return sessionmaker(self.db_connection, expire_on_commit=False, class_=AsyncSession)()
+        return async_sessionmaker(self.db_connection, expire_on_commit=False, class_=AsyncSession)()

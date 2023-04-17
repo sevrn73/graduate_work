@@ -21,10 +21,10 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["300 per day", "6
 def create_app():
     app = Flask(__name__)
 
-    app.config["JWT_SECRET_KEY"] = project_settings.SECRET_KEY
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(seconds=redis_settings.ACCESS_EXPIRES_IN_SECONDS)
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(seconds=redis_settings.REFRESH_EXPIRES_IN_SECONDS)
-    app.config["RATELIMIT_STORAGE_URL"] = redis_settings.RATELIMIT_STORAGE_URL
+    app.config["JWT_SECRET_KEY"] = project_settings.secret_key
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(seconds=redis_settings.access_expires_in_seconds)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(seconds=redis_settings.refresh_expires_in_seconds)
+    app.config["RATELIMIT_STORAGE_URL"] = redis_settings.ratelimit_storage_url
     limiter.init_app(app)
 
     jwt = JWTManager(app)

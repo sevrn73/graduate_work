@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import Dict, List
 
 from src.db.db import db
 from src.db.db_models import Roles, UsersRoles
@@ -19,7 +19,7 @@ def create_role_db(role_name: str) -> None:
     db.session.commit()
 
 
-def get_user_primary_role(user_id: uuid) -> Roles:
+def get_user_primary_role(user_id: uuid) -> Dict:
     users_roles = UsersRoles.query.filter_by(user_id=user_id).all()
     if not users_roles:
         return {"roles": []}

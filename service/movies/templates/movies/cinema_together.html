@@ -115,6 +115,7 @@
 
         async function VideoSocket_onmessage(e) {
             const data = JSON.parse(e.data);
+            console.log(data)
             if (data['user_id'] != parseJwt(external_access_token)['sub']) {
                 if (Math.abs(parseFloat(data['text']) - player.getCurrentTime()) > 1) {
                     player.seekTo(parseFloat(data['text']));

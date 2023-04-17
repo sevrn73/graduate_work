@@ -1,6 +1,7 @@
 from base64 import b64encode
 from http import HTTPStatus
 
+import backoff
 import requests
 from django.contrib import auth
 from django.contrib.auth.models import User
@@ -17,12 +18,26 @@ def index(request):
     )
 
 
-def cinema_together(request):
-    room_id = request.user.profile.chosen_room_id
+@backoff.on_exception(
+    backoff.expo,
+    requests.exceptions.RequestException,
+    max_time=120,
+)
+def get_room_data(room_id, external_access_token):
     response = requests.get(
         f"http://nginx:80/cinema_v1/room/{room_id}",
-        headers={"Authorization": "Bearer " + request.user.profile.external_refresh_token},
+        headers={"Authorization": "Bearer " + external_access_token},
     )
+    if response.status_code not in [HTTPStatus.OK, HTTPStatus.FORBIDDEN]:
+        raise requests.exceptions.RequestException
+    else:
+        return response
+
+
+def cinema_together(request):
+    room_id = request.user.profile.chosen_room_id
+    response = get_room_data(room_id, request.user.profile.external_access_token)
+
     if response.status_code == HTTPStatus.OK:
         data = response.json()
         return render(
@@ -36,7 +51,7 @@ def cinema_together(request):
                 .first()["film_work_url_id"],
             },
         )
-    else:
+    elif response.status_code == HTTPStatus.FORBIDDEN:
         return HttpResponseRedirect("/")
 
 
@@ -115,6 +130,5 @@ def logout(request):
         LOGOUT_JWT_URL,
         headers={"Authorization": "Bearer " + request.user.profile.external_access_token},
     )
-    auth.logout(request)
     auth.logout(request)
     return HttpResponseRedirect("/login")

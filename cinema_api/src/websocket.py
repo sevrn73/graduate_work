@@ -6,13 +6,13 @@ from http import HTTPStatus
 import httpx
 import jwt
 import uvicorn
-from aioredis import Redis
 from connection_events.events import on_shutdown, on_startup
 from connection_events.postgres import get_pg_engine
 from connection_events.redis import get_redis_client
 from core.auth.decorators import ws_room_permission
 from core.config import settings
 from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
+from redis.asyncio import Redis
 from services.ws import WebsocketService
 from sqlalchemy.ext.asyncio import AsyncEngine
 from starlette.authentication import AuthCredentials, AuthenticationBackend, SimpleUser
@@ -38,7 +38,7 @@ class BasicAuthBackend(AuthenticationBackend):
         scheme, credentials = auth.split()
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                settings.VERIFY_JWT_URL,
+                settings.verify_jwt_url,
                 headers={"Authorization": "Bearer " + credentials},
             )
         if response.status_code == HTTPStatus.OK:
@@ -123,6 +123,6 @@ async def websocket_endpoint_roll(
 if __name__ == "__main__":
     uvicorn.run(
         "websocket:app",
-        host=settings.PROJECT_HOST,
-        port=settings.WS_PORT,
+        host=settings.project_host,
+        port=settings.ws_port,
     )

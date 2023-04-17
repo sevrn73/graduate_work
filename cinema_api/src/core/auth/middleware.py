@@ -27,7 +27,7 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Invalid authentication scheme.")
 
-            is_token_valid = await self.verify_jwt(credentials.credentials) if settings.VERIFY_JWT_MODE else True
+            is_token_valid = await self.verify_jwt(credentials.credentials) if settings.verify_jwt_mode else True
             if not is_token_valid:
                 raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid token or expired token.")
 
@@ -47,7 +47,7 @@ class JWTBearer(HTTPBearer):
 
     async def verify_jwt(self, jwtoken: str) -> bool:
         async with httpx.AsyncClient() as client:
-            response = await client.get(settings.VERIFY_JWT_URL, headers={"Authorization": "Bearer " + jwtoken})
+            response = await client.get(settings.verify_jwt_url, headers={"Authorization": "Bearer " + jwtoken})
         if response.status_code == HTTPStatus.OK:
             return True
         else:

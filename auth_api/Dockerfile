@@ -3,7 +3,6 @@ FROM python:3.9-alpine
 
 WORKDIR /opt/auth_api
 
-COPY .env .env
 COPY requirements.txt requirements.txt
 
 RUN  pip install --upgrade pip && \

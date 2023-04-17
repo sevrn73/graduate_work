@@ -4,7 +4,7 @@ import redis
 from src.cache.base import BaseCache
 from src.core.config import redis_settings
 
-redis_db = redis.Redis(host=redis_settings.REDIS_HOST, port=redis_settings.REDIS_PORT, db=0)
+redis_db = redis.Redis(host=redis_settings.redis_host, port=redis_settings.redis_port, db=0)
 
 
 class RedisCache(BaseCache):

@@ -59,7 +59,7 @@ def login():
         )
 
         refresh_key = ":".join(("refresh", user_agent, str(user_model.id)))
-        redis_cache._put_token(refresh_key, get_jti(refresh_token), redis_settings.REFRESH_EXPIRES_IN_SECONDS)
+        redis_cache._put_token(refresh_key, get_jti(refresh_token), redis_settings.refresh_expires_in_seconds)
 
         return jsonify(access_token=access_token, refresh_token=refresh_token)
 
@@ -120,7 +120,7 @@ def logout():
     jti = token["jti"]
     ttype = token["type"]
 
-    redis_cache._put_token(jti, "revoked", redis_settings.ACCESS_EXPIRES_IN_SECONDS)
+    redis_cache._put_token(jti, "revoked", redis_settings.access_expires_in_seconds)
 
     return jsonify(msg=f"{ttype.capitalize()} successfully revoked")
 
@@ -146,7 +146,7 @@ def refresh():
         )
 
         refresh_key = ":".join(("refresh", user_agent, identity))
-        redis_cache._put_token(refresh_key, get_jti(refresh_token), redis_settings.REFRESH_EXPIRES_IN_SECONDS)
+        redis_cache._put_token(refresh_key, get_jti(refresh_token), redis_settings.refresh_expires_in_seconds)
 
         return jsonify(access_token=access_token, refresh_token=refresh_token)
 
@@ -182,6 +182,6 @@ def sign_up():
     add_record_to_login_history(new_user.id, user_agent)
 
     refresh_key = ":".join(("refresh", user_agent, str(new_user.id)))
-    redis_cache._put_token(refresh_key, get_jti(refresh_token), redis_settings.REFRESH_EXPIRES_IN_SECONDS)
+    redis_cache._put_token(refresh_key, get_jti(refresh_token), redis_settings.refresh_expires_in_seconds)
 
     return jsonify(access_token=access_token, refresh_token=refresh_token)

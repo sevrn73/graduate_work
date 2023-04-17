@@ -23,6 +23,3 @@ jobs:
     
     - name: black
       run: black --check --line-length=119 --exclude /migrations .
-
-    - name: isort
-      run: isort --check --line-length=119 --profile=black .

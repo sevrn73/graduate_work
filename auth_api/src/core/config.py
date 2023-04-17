@@ -1,7 +1,7 @@
 from datetime import timedelta
 from logging import config as logging_config
 
-from pydantic import BaseModel, BaseSettings, Field
+from pydantic import BaseSettings, Field
 from src.core.logger import LOGGING
 
 # Применяем настройки логирования
@@ -9,7 +9,7 @@ logging_config.dictConfig(LOGGING)
 
 
 class ProjectSettings(BaseSettings):
-    SECRET_KEY: str = Field("key", env="SECRET_KEY")
+    secret_key: str = Field("key", env="SECRET_KEY")
 
 
 class DbSettings(BaseSettings):
@@ -22,11 +22,11 @@ class DbSettings(BaseSettings):
 
 class RedisSettings(BaseSettings):
     # Настройки Redis
-    REDIS_HOST: str = Field("127.0.0.1", env="REDIS_HOST")
-    REDIS_PORT: int = Field(6379, env="REDIS_PORT")
-    ACCESS_EXPIRES_IN_SECONDS: int = Field(timedelta(hours=1).seconds, env="ACCESS_EXPIRES_IN_SECONDS")
-    REFRESH_EXPIRES_IN_SECONDS: int = Field(timedelta(days=90).seconds, env="REFRESH_EXPIRES_IN_SECONDS")
-    RATELIMIT_STORAGE_URL: str = Field("redis://redis:6379", env="RATELIMIT_STORAGE_URL")
+    redis_host: str = Field("127.0.0.1", env="REDIS_HOST")
+    redis_port: int = Field(6379, env="REDIS_PORT")
+    access_expires_in_seconds: int = Field(timedelta(hours=1).seconds, env="ACCESS_EXPIRES_IN_SECONDS")
+    refresh_expires_in_seconds: int = Field(timedelta(days=90).seconds, env="REFRESH_EXPIRES_IN_SECONDS")
+    ratelimit_storage_url: str = Field("redis://redis:6379", env="RATELIMIT_STORAGE_URL")
 
 
 project_settings = ProjectSettings()
